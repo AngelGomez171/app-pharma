@@ -180,6 +180,58 @@ Route::get('/proveedores/internacionales', function () {
     echo $html;
 });
 
+Route::get('/lotes/inventario', function () {
+
+    $lotes = json_decode(json_encode([
+        [ 'codigo_lote' => 'L-2026-001', 'nombre_medicamento' => 'Ondansetron', 'cantidad_cajas' => 40, 'temperatura_requerida_celsius' => 4 ],
+        [ 'codigo_lote' => 'L-2026-002', 'nombre_medicamento' => 'Omeprazol', 'cantidad_cajas' => 75, 'temperatura_requerida_celsius' => 20 ],
+        [ 'codigo_lote' => 'L-2026-003', 'nombre_medicamento' => 'Insulina Glargina', 'cantidad_cajas' => 15, 'temperatura_requerida_celsius' => 2 ],
+        [ 'codigo_lote' => 'L-2026-004', 'nombre_medicamento' => 'Famotidina', 'cantidad_cajas' => 60, 'temperatura_requerida_celsius' => 25 ]
+    ]));
+
+    // Creamos la tabla con los registros de lotes de forma dinámica
+
+    $html = '
+            <table border="1" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Código de Lote</th>
+                    <th>Medicamento</th>
+                    <th>Cantidad de Cajas</th>
+                    <th>Temperatura Requerida (°C)</th>
+                </tr>
+                </thead>
+                <tbody>
+                
+    ';
+
+    foreach ($lotes as $lote) {
+
+        // Evaluamos si el medicamento requiere cadena de frío
+        $etiqueta = '';
+        if ($lote->temperatura_requerida_celsius <= 5) {
+            $etiqueta = ' [Requiere Cadena de Frío]';
+        }
+
+        $html .= "
+                <tr>
+                    <td>$lote->codigo_lote</td>
+                    <td>$lote->nombre_medicamento$etiqueta</td>
+                    <td>$lote->cantidad_cajas</td>
+                    <td>$lote->temperatura_requerida_celsius</td>
+                </tr>
+        ";
+    }
+
+    $html .= '
+                </tbody>
+            </table>
+    ';
+
+    // Pintamos en la ventana del navegador la tabla
+    echo $html;
+});
+
 require __DIR__ . '/settings.php';
 
 
