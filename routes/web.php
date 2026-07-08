@@ -82,6 +82,104 @@ Route::get('/medicamentos', function () {
     return $html;
 });
 
+Route::get('/clientes/vip', function () {
+     // creamos la lista de clientes array()
+
+    $clientes = [
+        (object)[ 'id' => 1, 'nombre' => 'Karen Criollo', 'telefono' => '+503 1234 5678', 'puntos_acumulados' => '15' ],
+        (object)[ 'id' => 2, 'nombre' => 'Joel', 'telefono' => '+503 8765 4321', 'puntos_acumulados' => '5'],
+        (object)[ 'id' => 3, 'nombre' => 'Cristofer Guevara', 'telefono' => '+503 5555 5555', 'puntos_acumulados' => '25']
+    ];
+
+    //Creamos la tabla  con los registros de clientes de forma dinámica
+
+    $html = '
+            <table border="1" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>ID Cliente</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Puntos Acumulados</th>
+                </tr>
+                </thead>
+                <tbody>
+                
+    ';
+    foreach ($clientes as $cliente) {
+        $html .= "
+                <tr>
+                    <td>$cliente->id</td>
+                    <td>$cliente->nombre</td>
+                    <td>$cliente->telefono</td>
+                    <td>$cliente->puntos_acumulados</td>
+                </tr>
+        ";
+    }
+
+    $html .= '
+                </tbody>
+            </table>
+    ';
+    
+    //Pintamos en la ventana del navegador la tabla
+    echo $html;
+});
+
+
+Route::get('/proveedores/internacionales', function () {
+    // creamos la lista de proveedores array()
+
+    $proveedores = [
+        (object)[ 'empresa' => 'PharmaGlobal S.A.', 'pais_origen' => 'México', 'medicamento_principal' => 'Omeprazol', 'tiempo_entrega_dias' => 10 ],
+        (object)[ 'empresa' => 'MedSupply Corp', 'pais_origen' => 'Estados Unidos', 'medicamento_principal' => 'Ondansetron', 'tiempo_entrega_dias' => 22 ],
+        (object)[ 'empresa' => 'Farmacéutica del Sur', 'pais_origen' => 'Colombia', 'medicamento_principal' => 'Metoclopramida', 'tiempo_entrega_dias' => 18 ],
+        (object)[ 'empresa' => 'AsiaMed Trading', 'pais_origen' => 'India', 'medicamento_principal' => 'Granisetron', 'tiempo_entrega_dias' => 7 ]
+    ];
+
+    // Creamos la tabla con los registros de proveedores de forma dinámica
+
+    $html = '
+            <table border="1" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Empresa</th>
+                    <th>País de Origen</th>
+                    <th>Medicamento Principal</th>
+                    <th>Tiempo de Entrega (días)</th>
+                </tr>
+                </thead>
+                <tbody>
+                
+    ';
+
+    foreach ($proveedores as $proveedor) {
+
+        // Evaluamos si el tiempo de entrega es crítico
+        $advertencia = '';
+        if ($proveedor->tiempo_entrega_dias > 15) {
+            $advertencia = ' (Demora Crítica)';
+        }
+
+        $html .= "
+                <tr>
+                    <td>$proveedor->empresa</td>
+                    <td>$proveedor->pais_origen</td>
+                    <td>$proveedor->medicamento_principal</td>
+                    <td>$proveedor->tiempo_entrega_dias dias$advertencia</td>
+                </tr>
+        ";
+    }
+
+    $html .= '
+                </tbody>
+            </table>
+    ';
+
+    // Pintamos en la ventana del navegador la tabla
+    echo $html;
+});
+
 require __DIR__ . '/settings.php';
 
 
