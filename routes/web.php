@@ -232,6 +232,171 @@ Route::get('/lotes/inventario', function () {
     echo $html;
 });
 
+
+Route::get('/facturas/clientes/historial', function () {
+
+    $facturas = json_decode(json_encode([
+        [ 'num_factura' => 'F-1', 'cliente' => 'Henry Josue ', 'fecha_emision' => '2026/06/06', 'total_pagar' => 100, 'estado' => 'Pagada' ],
+        [ 'num_factura' => 'F-2', 'cliente' => 'Alvaro Francisco', 'fecha_emision' => '2026/06/15', 'total_pagar' => 240, 'estado' => 'Pendiente' ],
+        [ 'num_factura' => 'F-3', 'cliente' => 'Angel Gomez', 'fecha_emision' => '2026/06/20', 'total_pagar' => 150, 'estado' => 'Pagada' ],
+        [ 'num_factura' => 'F-4', 'cliente' => 'Emilia Estefany', 'fecha_emision' => '2026/06/28', 'total_pagar' => 200, 'estado' => 'Pendiente' ]
+    ]));
+
+    $html = '
+            <table border="1" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Numero de Factura</th>
+                    <th>Cliente</th>
+                    <th>Fecha de Emisión</th>
+                    <th>Total a Pagar</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                
+    ';
+
+    foreach ($facturas as $factura) {
+
+        $estadoTexto = $factura->estado;
+
+        if ($factura->estado === 'Pendiente') {
+            $estadoTexto = '🚨 PENDIENTE DE COBRO.';
+        }
+
+        $html .= "
+                <tr>
+                    <td>$factura->num_factura</td>
+                    <td>$factura->cliente</td>
+                    <td>$factura->fecha_emision</td>
+                    <td>$factura->total_pagar</td>
+                    <td>$estadoTexto</td>
+                </tr>
+        ";
+    }
+
+    $html .= '
+                </tbody>
+            </table>
+    ';
+
+    echo $html;
+});
+
+Route::get('/facturas/clientes/detalle/{numero}', function (string $numero) {
+
+    $facturas = json_decode(json_encode([
+        [ 'num_factura' => 'F-1', 'cliente' => 'Henry Josue ', 'fecha_emision' => '2026/06/06', 'total_pagar' => 100, 'estado' => 'Pagada' ],
+        [ 'num_factura' => 'F-2', 'cliente' => 'Alvaro Francisco', 'fecha_emision' => '2026/06/15', 'total_pagar' => 240, 'estado' => 'Pendiente' ],
+        [ 'num_factura' => 'F-3', 'cliente' => 'Angel Gomez', 'fecha_emision' => '2026/06/20', 'total_pagar' => 150, 'estado' => 'Pagada' ],
+        [ 'num_factura' => 'F-4', 'cliente' => 'Emilia Estefany', 'fecha_emision' => '2026/06/28', 'total_pagar' => 200, 'estado' => 'Pendiente' ]
+    ]));
+
+    $facturaEncontrada = null;
+
+    foreach ($facturas as $factura) {
+        if ($factura->num_factura === $numero) {
+            $facturaEncontrada = $factura;
+            break;
+        }
+    }
+
+    if ($facturaEncontrada) {
+
+        $estadoTexto = $facturaEncontrada->estado;
+
+        if ($facturaEncontrada->estado === 'Pendiente') {
+            $estadoTexto = '🚨 PENDIENTE DE COBRO.';
+        }
+
+        $html = "
+                <h2>Ficha de Factura</h2>
+                <ul>
+                    <li><strong>Número de Factura:</strong> $facturaEncontrada->num_factura</li>
+                    <li><strong>Cliente:</strong> $facturaEncontrada->cliente</li>
+                    <li><strong>Fecha de Emisión:</strong> $facturaEncontrada->fecha_emision</li>
+                    <li><strong>Total a Pagar:</strong> $facturaEncontrada->total_pagar</li>
+                    <li><strong>Estado:</strong> $estadoTexto</li>
+                </ul>
+            </div>
+        ";
+
+    } else {
+        $html = '<h1>Factura No Encontrada</h1>';
+    }
+
+    echo $html;
+});
+
+Route::get('/facturas/proveedores/resumen', function () {
+
+    $facturas = json_decode(json_encode([
+    [ 'proveedor' => 'EcoSalud', 'nrc' => '112233-4', 'monto_sin_iva' => 640.75 ],
+    [ 'proveedor' => 'MedicLine', 'nrc' => '556677-8', 'monto_sin_iva' => 1580.20 ],
+    [ 'proveedor' => 'Farmacia Central.', 'nrc' => '998877-6', 'monto_sin_iva' => 845.90 ],
+    [ 'proveedor' => 'HealthBrid', 'nrc' => '443322-1', 'monto_sin_iva' => 390.15 ]
+    ]));
+
+    $html = '
+            <table border="1" cellspacing="0">
+                <thead>
+                <tr>
+                    <th>Proveedor</th>
+                    <th>NRC</th>
+                    <th>Monto sin IVA</th>
+                    <th>IVA (13%)</th>
+                    <th>Monto Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                
+    ';
+
+    # Variables acumuladoras para los totales generales
+    $totalSinIvaAcumulado = 0;
+    $totalIvaAcumulado = 0;
+    $totalGeneralAcumulado = 0;
+
+    foreach ($facturas as $factura) {
+
+        # Calculamos el IVA y el monto total de la fila actual
+        $iva = $factura->monto_sin_iva * 0.13;
+        $montoTotal = $factura->monto_sin_iva + $iva;
+
+        # sumando a los acumuladores generales
+        $totalSinIvaAcumulado += $factura->monto_sin_iva;
+        $totalIvaAcumulado += $iva;
+        $totalGeneralAcumulado += $montoTotal;
+
+        $html .= "
+                <tr>
+                    <td>$factura->proveedor</td>
+                    <td>$factura->nrc</td>
+                    <td>\$" . number_format($factura->monto_sin_iva, 2) . "</td>
+                    <td>\$" . number_format($iva, 2) . "</td>
+                    <td>\$" . number_format($montoTotal, 2) . "</td>
+                </tr>
+        ";
+    }
+
+    $html .= "
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan='2'><strong>TOTALES</strong></td>
+                    <td><strong>\$" . number_format($totalSinIvaAcumulado, 2) . "</strong></td>
+                    <td><strong>\$" . number_format($totalIvaAcumulado, 2) . "</strong></td>
+                    <td><strong>\$" . number_format($totalGeneralAcumulado, 2) . "</strong></td>
+                </tr>
+                </tfoot>
+            </table>
+    ";
+
+    echo $html;
+});
+
+
 require __DIR__ . '/settings.php';
 
 
