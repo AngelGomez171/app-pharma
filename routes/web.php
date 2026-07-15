@@ -397,6 +397,14 @@ Route::get('/facturas/proveedores/resumen', function () {
 });
 
 
+Route::get('/pagina02/{nombre}/{edad}', function ($nombre, $edad) {
+    return view('ejercicios.vista02', compact('nombre', 'edad'));
+});
+
+Route::get('/clientes/registro', function () {
+    return view('ejercicios.registro');
+});
+
 require __DIR__ . '/settings.php';
 
 
